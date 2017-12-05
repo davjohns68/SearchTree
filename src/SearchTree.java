@@ -1,4 +1,5 @@
 
+import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
 // Class SearchTree stores and prints a binary search tree of
@@ -8,6 +9,8 @@ import java.util.NoSuchElementException;
 // Bellevue College, November 2015
 // modified by David Johnson to add methods from Assignment 17
 // November 16, 2017
+// Modified further for CS211 final exam
+// December 5, 2017
 
 public class SearchTree<E extends Comparable<E>> {
     private SearchTreeNode<E> overallRoot; // root of overall tree
@@ -18,6 +21,131 @@ public class SearchTree<E extends Comparable<E>> {
     }
     
     // WRITE ADDITIONAL METHODS HERE:
+    // Final question 1
+    // Prints (System.out) this tree, more like the "normal" upright way, with the root at top.
+    public void showTree() {
+        int levelCount = this.countLevels();
+        int maxWidth = getWidth();
+        final int ELEMENTSIZE = 6;
+        String output = "";
+        
+        for (int i = 0; i < levelCount; i++) {
+            ArrayList<E> level = returnLevel(i);
+            int whiteSpace = ((maxWidth * ELEMENTSIZE) - (level.size() * ELEMENTSIZE));
+            for (int j = 0; j < whiteSpace / 2; j++) {
+                output += " ";
+            }
+            for (E item: level) {
+                if (item != null) {
+                    output += item;
+                    // Round out spacing to ELEMENTSIZE characters for each position
+                    for (int j = 0; j < ELEMENTSIZE - String.valueOf(item).length(); j++) {
+                        output += " ";
+                    }
+                } else {
+                    for (int j = 0; j < ELEMENTSIZE - 1; j++) {
+                        output += " ";
+                    }
+                }
+            }
+            output += "\n";
+        }
+        
+        System.out.println(output);
+    }
+    
+    private int getWidth() {
+        int levelCount = this.countLevels();
+        int width = 0;
+        
+        for (int i = 0; i < levelCount; i++) {
+            ArrayList<E> level = returnLevel(i);
+            if (level.size() > width) {
+                width = level.size();
+            }
+        }
+        
+        return width;
+    }
+    
+    // Final question 2
+    // Returns the total number of nodes in this tree.
+    public int countNodes() {
+        return countNodes(this.overallRoot);
+    }
+    
+    private int countNodes(SearchTreeNode<E> root) {
+        if (root == null) {
+            return 0;
+        } else {
+            //System.out.println("Node: " + root.data + "\tCount: " + count);
+            return 1 + countNodes(root.left) + countNodes(root.right);
+        }
+    }
+    
+    // Final question 3
+    // Returns the number of levels in this tree, null tree returns zero, single node 1, etc...
+    public int countLevels() {
+        return countLevels(this.overallRoot);
+    }
+    
+    private int countLevels(SearchTreeNode<E> root) {
+        if (root == null) {
+            return 0;
+        } else {
+            return 1 + Math.max(countLevels(root.left), countLevels(root.right));
+        }
+    }
+    
+    // Final question 4
+    // Return a Collection (a List is suggested, but there are many possibilities) of the data 
+    // on leaves in this tree, null data does not make a leaf.
+    public ArrayList<E> returnLeaves() {
+        ArrayList<E> result = new ArrayList<>();
+        
+        returnLeaves(this.overallRoot, result);
+        
+        return result;
+    }
+    
+    private void returnLeaves(SearchTreeNode<E> root, ArrayList<E> result) {
+        if (root != null) {
+            if (root.left == null && root.right == null) {
+                result.add(root.data);
+            } else {
+                returnLeaves(root.left, result);
+                returnLeaves(root.right, result);
+            }
+        }
+    }
+    
+    // Final question 5
+    // Return a Collection of all data at level i, the root being i==0.  I leave this to you as 
+    // to how you handle null data, although you might consider how nulls actually appear as 
+    // blank space back in problem #1.
+    public ArrayList<E> returnLevel(int level) {
+        ArrayList<E> result = new ArrayList<>();
+
+        returnLevel(this.overallRoot, level, result);
+        
+        return result;
+    }
+    
+    private void returnLevel(SearchTreeNode<E> root, int level, ArrayList<E> result) {
+        if (root != null) {
+            if (level == 0) {
+                result.add(root.data);
+            } else {
+                returnLevel(root.left, level - 1, result);
+                returnLevel(root.right, level - 1, result);
+            }
+        } else {
+            if (level == 0) {
+                result.add(null);
+            }
+        }
+    }
+    
     // Exercise 7
     public boolean isFull() {
         return (overallRoot == null || isFull(overallRoot));
@@ -92,7 +220,7 @@ public class SearchTree<E extends Comparable<E>> {
             }
         }
         return root;
-}
+    }
 
     // post: value added to tree so as to preserve binary search tree
     public void add(E value) {
@@ -102,7 +230,7 @@ public class SearchTree<E extends Comparable<E>> {
     // post: value added to tree so as to preserve binary search tree
     private SearchTreeNode<E> add(SearchTreeNode<E> root, E value) {
         if (root == null) {
-            root = new SearchTreeNode<E>(value);
+            root = new SearchTreeNode<>(value);
         } else if (root.data.compareTo(value) > 0) {
             root.left = add(root.left, value);
         } else if (root.data.compareTo(value) < 0) {
